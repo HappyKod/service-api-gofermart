@@ -1,10 +1,10 @@
 package main
 
 import (
-	"HappyKod/service-api-gofermart/internal/container"
-	"HappyKod/service-api-gofermart/internal/handlers"
+	"HappyKod/service-api-gofermart/internal/app/container"
+	"HappyKod/service-api-gofermart/internal/app/handlers"
+	"HappyKod/service-api-gofermart/internal/app/server"
 	"HappyKod/service-api-gofermart/internal/models"
-	"HappyKod/service-api-gofermart/internal/server"
 	"flag"
 	"github.com/caarlos0/env/v6"
 	"go.uber.org/zap"

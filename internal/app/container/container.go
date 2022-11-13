@@ -2,6 +2,7 @@ package container
 
 import (
 	"HappyKod/service-api-gofermart/internal/models"
+	"HappyKod/service-api-gofermart/internal/storage/memstorage"
 	"github.com/sarulabs/di"
 	"go.uber.org/zap"
 )
@@ -13,6 +14,10 @@ func BuildContainer(cfg models.Config, logger *zap.Logger) error {
 	if err != nil {
 		return err
 	}
+	storage, err := memstorage.New()
+	if err != nil {
+		return err
+	}
 	if err = builder.Add(di.Def{
 		Name:  "server-config",
 		Build: func(ctn di.Container) (interface{}, error) { return cfg, nil }}); err != nil {
@@ -21,6 +26,11 @@ func BuildContainer(cfg models.Config, logger *zap.Logger) error {
 	if err = builder.Add(di.Def{
 		Name:  "zap-logger",
 		Build: func(ctn di.Container) (interface{}, error) { return logger, nil }}); err != nil {
+		return err
+	}
+	if err = builder.Add(di.Def{
+		Name:  "storage",
+		Build: func(ctn di.Container) (interface{}, error) { return storage, nil }}); err != nil {
 		return err
 	}
 	DiContainer = builder.Build()

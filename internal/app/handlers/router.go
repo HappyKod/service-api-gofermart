@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"HappyKod/service-api-gofermart/internal/app/middleware"
 	"HappyKod/service-api-gofermart/internal/models"
 	"github.com/gin-gonic/gin"
 )
@@ -12,13 +13,13 @@ func Router(cfg models.Config) *gin.Engine {
 	}
 	r := gin.New()
 	r.Use(gin.Logger())
+	r.Use(middleware.JwtValid())
 	gUser := r.Group("/api/user")
 	gUserBalance := gUser.Group("/balance")
-	{
-		gUser.POST("/register", func(context *gin.Context) {
 
-		})
-		gUser.POST("/login", func(context *gin.Context) {})
+	{
+		gUser.POST("/register", RegisterHandler)
+		gUser.POST("/login", LoginHandler)
 		gUser.POST("/orders", func(context *gin.Context) {})
 		gUser.GET("/orders", func(context *gin.Context) {})
 		gUserBalance.GET("/", func(context *gin.Context) {})
