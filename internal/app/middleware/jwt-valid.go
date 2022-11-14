@@ -33,7 +33,7 @@ func JwtValid() gin.HandlerFunc {
 			return
 		}
 
-		_, err := parseToken(headerParts[1],
+		login, err := parseToken(headerParts[1],
 			[]byte(container.DiContainer.Get("server-config").(models.Config).SecretKey),
 		)
 		if err != nil {
@@ -45,24 +45,22 @@ func JwtValid() gin.HandlerFunc {
 			c.AbortWithStatus(status)
 			return
 		}
-		fmt.Println(c.Request.URL.Path)
+		c.AddParam("loginUser", login)
 	}
 }
 
 func parseToken(accessToken string, signingKey []byte) (string, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &auth.Claims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &models.Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return signingKey, nil
 	})
-
 	if err != nil {
 		return "", err
 	}
-
-	if claims, ok := token.Claims.(*auth.Claims); ok && token.Valid {
-		return claims.Username, nil
+	if claims, ok := token.Claims.(*models.Claims); ok && token.Valid {
+		return claims.Login, nil
 	}
 
 	return "", auth.ErrInvalidAccessToken

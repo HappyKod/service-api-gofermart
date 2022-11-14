@@ -20,8 +20,8 @@ func Router(cfg models.Config) *gin.Engine {
 	{
 		gUser.POST("/register", RegisterHandler)
 		gUser.POST("/login", LoginHandler)
-		gUser.POST("/orders", func(context *gin.Context) {})
-		gUser.GET("/orders", func(context *gin.Context) {})
+		gUser.POST("/orders", AddUserOrders)
+		gUser.GET("/orders", GetUserOrders)
 		gUserBalance.GET("/", func(context *gin.Context) {})
 		gUserBalance.POST("/withdraw", func(context *gin.Context) {})
 		gUserBalance.GET("/withdrawals", func(context *gin.Context) {})

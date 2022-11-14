@@ -18,7 +18,9 @@ func RegisterHandler(c *gin.Context) {
 	storage := container.GetStorage()
 	var user models.User
 	if err := c.Bind(&user); err != nil {
-		log.Error("ошибка", zap.Error(err))
+		log.Error(constans.ErrorUnmarshalBody, zap.Error(err))
+		c.String(http.StatusInternalServerError, constans.ErrorUnmarshalBody)
+		return
 	}
 	log.Debug("регистрация пользователя", zap.Any("user", user))
 	if user.Login == "" || user.Password == "" {

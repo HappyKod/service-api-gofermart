@@ -20,7 +20,9 @@ func LoginHandler(c *gin.Context) {
 	storage := container.GetStorage()
 	var user models.User
 	if err := c.Bind(&user); err != nil {
-		log.Error("ошибка", zap.Error(err))
+		log.Error(constans.ErrorUnmarshalBody, zap.Error(err))
+		c.String(http.StatusInternalServerError, constans.ErrorUnmarshalBody)
+		return
 	}
 	log.Debug("авторизация пользователя", zap.Any("user", user))
 	if user.Login == "" || user.Password == "" {
@@ -41,7 +43,9 @@ func LoginHandler(c *gin.Context) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &models.Claims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: jwt.At(time.Now().Add(time.Hour * 100)),
-			IssuedAt:  jwt.At(time.Now())}})
+			IssuedAt:  jwt.At(time.Now())},
+		Login: user.Login,
+	})
 	log.Debug("пользователь успешно авторизовался",
 		zap.Any("user", user),
 		zap.Any("token", token))

@@ -8,6 +8,8 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-playground/assert/v2 v2.0.1
 	github.com/google/uuid v1.3.0
+	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
+	github.com/lib/pq v1.10.7
 	github.com/sarulabs/di v2.0.0+incompatible
 	github.com/zhashkevych/auth v0.0.0-20200331153139-c37e02c6aad8
 	go.uber.org/zap v1.23.0
