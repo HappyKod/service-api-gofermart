@@ -4,6 +4,7 @@ import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/models"
 	"bytes"
+	"fmt"
 	"github.com/go-playground/assert/v2"
 	"go.uber.org/zap"
 	"net/http"
@@ -100,16 +101,6 @@ func TestGetUserOrders(t *testing.T) {
 				responseCode: http.StatusOK,
 			},
 		},
-		{
-			name:          "просмотр заказов с авторизацией с неверными заголовками",
-			requestPath:   "/api/user/orders",
-			requestMethod: http.MethodGet,
-			requestBody:   "",
-			requestHeader: [2]string{"Content-Length", "10"},
-			want: want{
-				responseCode: http.StatusBadRequest,
-			},
-		},
 	}
 	logger, err := zap.NewDevelopment()
 	if err != nil {
@@ -131,6 +122,8 @@ func TestGetUserOrders(t *testing.T) {
 			if tt.requestPath == "/api/user/login" {
 				bearer = w.Header().Get("Authorization")
 			}
+			//TODO убрать
+			fmt.Println(w.Body.String())
 			assert.Equal(t, tt.want.responseCode, w.Code)
 		})
 	}

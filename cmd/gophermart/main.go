@@ -4,11 +4,14 @@ import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/app/handlers"
 	"HappyKod/service-api-gofermart/internal/app/server"
+	"HappyKod/service-api-gofermart/internal/app/service"
+	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
 	"flag"
 	"github.com/caarlos0/env/v6"
 	"go.uber.org/zap"
 	"log"
+	"time"
 )
 
 var cfg models.Config
@@ -42,6 +45,15 @@ func main() {
 	if err = container.BuildContainer(cfg, zapLogger); err != nil {
 		zapLogger.Fatal("ошибка запуска Di контейнера", zap.Error(err))
 	}
+	go func() {
+		for {
+			time.Sleep(time.Second * constans.TimeSleepCalculationLoyaltyPoints)
+			err = service.CalculationLoyaltyPoints()
+			if err != nil {
+				zapLogger.Error("ошибка в работе модуля", zap.Error(err))
+			}
+		}
+	}()
 	r := handlers.Router(cfg)
 	server.NewServer(r, cfg)
 }

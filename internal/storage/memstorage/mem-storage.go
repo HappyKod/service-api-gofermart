@@ -86,3 +86,28 @@ func (MS *MemStorage) AddOrder(numberOrder string, order models.Order) error {
 	MS.orderCash[numberOrder] = order
 	return nil
 }
+
+func (MS *MemStorage) GetOrdersByProcess() ([]models.Order, error) {
+	MS.mu.RLock()
+	defer MS.mu.RUnlock()
+	var orders []models.Order
+	for _, v := range MS.orderCash {
+		if v.Status == constans.OrderStatusPROCESSING ||
+			v.Status == constans.OrderStatusNEW ||
+			v.Status == constans.OrderStatusREGISTERED {
+			orders = append(orders, v)
+		}
+	}
+	return orders, nil
+}
+
+func (MS *MemStorage) UpdateOrder(loyaltyPoint models.LoyaltyPoint) error {
+	MS.mu.Lock()
+	defer MS.mu.Unlock()
+	for _, order := range MS.orderCash {
+		if order.NumberOrder == loyaltyPoint.NumberOrder {
+			order.Status, order.Accrual = loyaltyPoint.Status, loyaltyPoint.Accrual
+		}
+	}
+	return nil
+}
