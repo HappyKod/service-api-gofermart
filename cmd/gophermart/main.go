@@ -5,13 +5,11 @@ import (
 	"HappyKod/service-api-gofermart/internal/app/handlers"
 	"HappyKod/service-api-gofermart/internal/app/server"
 	"HappyKod/service-api-gofermart/internal/app/service"
-	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
 	"flag"
 	"github.com/caarlos0/env/v6"
 	"go.uber.org/zap"
 	"log"
-	"time"
 )
 
 var cfg models.Config
@@ -47,7 +45,6 @@ func main() {
 	}
 	go func() {
 		for {
-			time.Sleep(time.Second * constans.TimeSleepCalculationLoyaltyPoints)
 			err = service.CalculationLoyaltyPoints()
 			if err != nil {
 				zapLogger.Error("ошибка в работе модуля", zap.Error(err))
