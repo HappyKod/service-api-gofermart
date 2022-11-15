@@ -104,10 +104,8 @@ func (MS *MemStorage) GetOrdersByProcess() ([]models.Order, error) {
 func (MS *MemStorage) UpdateOrder(loyaltyPoint models.LoyaltyPoint) error {
 	MS.mu.Lock()
 	defer MS.mu.Unlock()
-	for _, order := range MS.orderCash {
-		if order.NumberOrder == loyaltyPoint.NumberOrder {
-			order.Status, order.Accrual = loyaltyPoint.Status, loyaltyPoint.Accrual
-		}
-	}
+	order := MS.orderCash[loyaltyPoint.NumberOrder]
+	order.Status, order.Accrual = loyaltyPoint.Status, loyaltyPoint.Accrual
+	MS.orderCash[loyaltyPoint.NumberOrder] = order
 	return nil
 }

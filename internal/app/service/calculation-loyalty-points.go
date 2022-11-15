@@ -48,22 +48,22 @@ func CalculationLoyaltyPoints() error {
 			if errRead != nil {
 				return errRead
 			}
-			var loyaltyPoints []models.LoyaltyPoint
-			if errUnmarshal := json.Unmarshal(body, &loyaltyPoints); errUnmarshal != nil {
+			log.Debug("body", zap.String("body", string(body)))
+			var loyaltyPoint models.LoyaltyPoint
+			if errUnmarshal := json.Unmarshal(body, &loyaltyPoint); errUnmarshal != nil {
+
 				return errUnmarshal
 			}
 			errClose := r.Body.Close()
 			if errClose != nil {
 				return errClose
 			}
-			for _, loyaltyPoint := range loyaltyPoints {
-				if loyaltyPoint.Status == "REGISTERED" {
-					loyaltyPoint.Status = "PROCESSING"
-				}
-				if order.Status != loyaltyPoint.Status {
-					if err = storage.UpdateOrder(loyaltyPoint); err != nil {
-						return err
-					}
+			if loyaltyPoint.Status == "REGISTERED" {
+				loyaltyPoint.Status = "PROCESSING"
+			}
+			if order.Status != loyaltyPoint.Status {
+				if err = storage.UpdateOrder(loyaltyPoint); err != nil {
+					return err
 				}
 			}
 		}
