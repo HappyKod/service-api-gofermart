@@ -16,16 +16,14 @@ func Router(cfg models.Config) *gin.Engine {
 	r.Use(middleware.JwtValid())
 
 	gUser := r.Group("/api/user")
-	gUserBalance := gUser.Group("/balance")
-
 	{
 		gUser.POST("/register", RegisterHandler)
 		gUser.POST("/login", LoginHandler)
 		gUser.POST("/orders", AddUserOrders)
 		gUser.GET("/orders", GetUserOrders)
-		gUserBalance.GET("/", func(context *gin.Context) {})
-		gUserBalance.POST("/withdraw", func(context *gin.Context) {})
-		gUserBalance.GET("/withdrawals", func(context *gin.Context) {})
+		gUser.GET("/balance", UserBalance)
+		gUser.POST("/balance/withdraw", AddWithdraw)
+		gUser.GET("/balance/withdrawals", func(context *gin.Context) {})
 	}
 	return r
 }

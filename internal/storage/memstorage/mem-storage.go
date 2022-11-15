@@ -9,16 +9,18 @@ import (
 )
 
 type MemStorage struct {
-	userCash  map[uuid.UUID]models.User
-	orderCash map[string]models.Order
-	mu        *sync.RWMutex
+	userCash     map[uuid.UUID]models.User
+	orderCash    map[string]models.Order
+	withdrawCash map[uuid.UUID]models.Withdraw
+	mu           *sync.RWMutex
 }
 
 func New() (*MemStorage, error) {
 	return &MemStorage{
-		userCash:  make(map[uuid.UUID]models.User),
-		orderCash: make(map[string]models.Order),
-		mu:        new(sync.RWMutex),
+		userCash:     make(map[uuid.UUID]models.User),
+		orderCash:    make(map[string]models.Order),
+		withdrawCash: make(map[uuid.UUID]models.Withdraw),
+		mu:           new(sync.RWMutex),
 	}, nil
 }
 
@@ -107,5 +109,30 @@ func (MS *MemStorage) UpdateOrder(loyaltyPoint models.LoyaltyPoint) error {
 	order := MS.orderCash[loyaltyPoint.NumberOrder]
 	order.Status, order.Accrual = loyaltyPoint.Status, loyaltyPoint.Accrual
 	MS.orderCash[loyaltyPoint.NumberOrder] = order
+	return nil
+}
+
+func (MS *MemStorage) GetUserBalance(userLogin string) (float64, float64, error) {
+	MS.mu.RLock()
+	defer MS.mu.RUnlock()
+	pointsSUM := 0.0
+	pointsSPEND := 0.0
+	for _, order := range MS.orderCash {
+		if order.UserLogin == userLogin {
+			pointsSUM += order.Accrual
+		}
+	}
+	for _, withdraw := range MS.withdrawCash {
+		if withdraw.UserLogin == userLogin {
+			pointsSPEND += withdraw.Sum
+		}
+	}
+	return pointsSUM, pointsSPEND, nil
+}
+
+func (MS *MemStorage) AddWithdraw(withdraw models.Withdraw) error {
+	MS.mu.Lock()
+	defer MS.mu.Unlock()
+	MS.withdrawCash[uuid.New()] = withdraw
 	return nil
 }

@@ -13,4 +13,6 @@ type GoferStorage interface {
 	AddOrder(numberOrder string, order models.Order) error
 	GetOrdersByProcess() ([]models.Order, error)
 	UpdateOrder(loyaltyPoint models.LoyaltyPoint) error
+	GetUserBalance(userLogin string) (float64, float64, error)
+	AddWithdraw(withdraw models.Withdraw) error
 }
