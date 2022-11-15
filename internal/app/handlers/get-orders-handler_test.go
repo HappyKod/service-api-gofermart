@@ -29,7 +29,7 @@ func TestGetUserOrders(t *testing.T) {
 			requestPath:   "/api/user/orders",
 			requestMethod: http.MethodGet,
 			requestBody:   "",
-			requestHeader: [2]string{"Content-Type", "text/plain"},
+			requestHeader: [2]string{"Content-Length", "0"},
 			want: want{
 				responseCode: http.StatusUnauthorized,
 			},
@@ -65,7 +65,7 @@ func TestGetUserOrders(t *testing.T) {
 			requestPath:   "/api/user/orders",
 			requestMethod: http.MethodGet,
 			requestBody:   "",
-			requestHeader: [2]string{"Content-Type", "text/plain"},
+			requestHeader: [2]string{"Content-Length", "0"},
 			want: want{
 				responseCode: http.StatusNoContent,
 			},
@@ -95,9 +95,19 @@ func TestGetUserOrders(t *testing.T) {
 			requestPath:   "/api/user/orders",
 			requestMethod: http.MethodGet,
 			requestBody:   "",
-			requestHeader: [2]string{"Content-Type", "text/plain"},
+			requestHeader: [2]string{"Content-Length", "0"},
 			want: want{
 				responseCode: http.StatusOK,
+			},
+		},
+		{
+			name:          "просмотр заказов с авторизацией с неверными заголовками",
+			requestPath:   "/api/user/orders",
+			requestMethod: http.MethodGet,
+			requestBody:   "",
+			requestHeader: [2]string{"Content-Length", "10"},
+			want: want{
+				responseCode: http.StatusBadRequest,
 			},
 		},
 	}

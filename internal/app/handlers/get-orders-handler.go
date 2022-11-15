@@ -3,7 +3,6 @@ package handlers
 import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/constans"
-	"HappyKod/service-api-gofermart/internal/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
@@ -60,9 +59,6 @@ import (
 //
 // 500 — внутренняя ошибка сервера.
 func GetUserOrders(c *gin.Context) {
-	if !utils.ValidContentType(c, "text/plain") {
-		return
-	}
 	log := container.GetLog()
 	storage := container.GetStorage()
 	user := c.Param("loginUser")

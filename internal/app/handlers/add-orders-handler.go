@@ -70,7 +70,7 @@ func AddUserOrders(c *gin.Context) {
 			NumberOrder: numberOrder,
 			UserLogin:   user,
 			Status:      constans.OrderStatusPROCESSING,
-			Created:     time.Now(),
+			Uploaded:    time.Now(),
 		})
 	if err != nil {
 		if err.Error() == constans.ErrorNoUNIQUE {
