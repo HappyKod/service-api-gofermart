@@ -14,7 +14,6 @@ func Router(cfg models.Config) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(middleware.JwtValid())
-	r.Use(middleware.ValidGet())
 
 	gUser := r.Group("/api/user")
 	gUserBalance := gUser.Group("/balance")
