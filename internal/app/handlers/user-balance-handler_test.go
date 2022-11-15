@@ -14,6 +14,7 @@ import (
 func TestUserBalance(t *testing.T) {
 	type want struct {
 		responseCode int
+		body         string
 	}
 	tests := []struct {
 		name          string
@@ -68,6 +69,49 @@ func TestUserBalance(t *testing.T) {
 			requestHeader: [2]string{"Content-Length", "0"},
 			want: want{
 				responseCode: http.StatusOK,
+				body:         `{"current":0,"withdrawn":0}`,
+			},
+		},
+		{
+			name:          "регистрация номера заказа c авторизацией",
+			requestPath:   "/api/user/orders",
+			requestMethod: http.MethodPost,
+			requestBody:   "4561261212345467",
+			requestHeader: [2]string{"Content-Type", "text/plain"},
+			want: want{
+				responseCode: http.StatusAccepted,
+			},
+		},
+		{
+			name:          "просмотр баланса с авторизацией без заказов",
+			requestPath:   "/api/user/balance",
+			requestMethod: http.MethodGet,
+			requestBody:   "",
+			requestHeader: [2]string{"Content-Length", "0"},
+			want: want{
+				responseCode: http.StatusOK,
+				body:         `{"current":100,"withdrawn":0}`,
+			},
+		},
+		{
+			name:          "регистрация списание бонусов c авторизацией",
+			requestPath:   "/api/user/balance/withdraw",
+			requestMethod: http.MethodPost,
+			requestBody:   `{"order": "4111111111111111","sum": 10}`,
+			requestHeader: [2]string{"Content-Type", "application/json"},
+			want: want{
+				responseCode: http.StatusOK,
+			},
+		},
+		{
+			name:          "просмотр баланса с авторизацией без заказов",
+			requestPath:   "/api/user/balance",
+			requestMethod: http.MethodGet,
+			requestBody:   "",
+			requestHeader: [2]string{"Content-Length", "0"},
+			want: want{
+				responseCode: http.StatusOK,
+				body:         `{"current":90,"withdrawn":10}`,
 			},
 		},
 	}
@@ -90,6 +134,18 @@ func TestUserBalance(t *testing.T) {
 			router.ServeHTTP(w, req)
 			if tt.requestPath == "/api/user/login" {
 				bearer = w.Header().Get("Authorization")
+			}
+			if tt.requestPath == "/api/user/orders" {
+				err = container.GetStorage().UpdateOrder(models.LoyaltyPoint{
+					Status:      "PROCESSED",
+					NumberOrder: tt.requestBody,
+					Accrual:     100.0})
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+			if tt.want.body != "" {
+				assert.Equal(t, tt.want.body, w.Body.String())
 			}
 			assert.Equal(t, tt.want.responseCode, w.Code)
 		})

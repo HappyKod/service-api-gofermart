@@ -54,5 +54,10 @@ func UserBalance(c *gin.Context) {
 		"current":   sum - spent,
 		"withdrawn": spent,
 	}
+	log.Debug("баланс пользователя", zap.String("loginUser", user),
+		zap.Float64("sum", sum),
+		zap.Float64("spent", spent),
+		zap.Float64("current", sum-spent),
+	)
 	c.JSONP(http.StatusOK, response)
 }

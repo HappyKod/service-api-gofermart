@@ -62,7 +62,7 @@ func AddWithdraw(c *gin.Context) {
 		c.String(http.StatusInternalServerError, constans.ErrorUnmarshalBody)
 		return
 	}
-	withdraw.ProcessedAT = time.Now()
+	withdraw.ProcessedAT, withdraw.UserLogin = time.Now(), user
 	log.Debug("поступил запрос на списание средств",
 		zap.Any("withdraw", withdraw),
 		zap.String("loginUser", user))
