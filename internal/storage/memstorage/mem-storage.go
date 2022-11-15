@@ -136,3 +136,15 @@ func (MS *MemStorage) AddWithdraw(withdraw models.Withdraw) error {
 	MS.withdrawCash[uuid.New()] = withdraw
 	return nil
 }
+
+func (MS *MemStorage) GetManyWithdraws(userLogin string) ([]models.Withdraw, error) {
+	MS.mu.RLock()
+	defer MS.mu.RUnlock()
+	var withdraws []models.Withdraw
+	for _, v := range MS.withdrawCash {
+		if v.UserLogin == userLogin {
+			withdraws = append(withdraws, v)
+		}
+	}
+	return withdraws, nil
+}

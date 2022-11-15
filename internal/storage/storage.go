@@ -15,4 +15,5 @@ type GoferStorage interface {
 	UpdateOrder(loyaltyPoint models.LoyaltyPoint) error
 	GetUserBalance(userLogin string) (float64, float64, error)
 	AddWithdraw(withdraw models.Withdraw) error
+	GetManyWithdraws(userLogin string) ([]models.Withdraw, error)
 }
