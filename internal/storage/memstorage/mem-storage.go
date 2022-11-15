@@ -10,14 +10,14 @@ import (
 
 type MemStorage struct {
 	userCash  map[uuid.UUID]models.User
-	orderCash map[int]models.Order
+	orderCash map[string]models.Order
 	mu        *sync.RWMutex
 }
 
 func New() (*MemStorage, error) {
 	return &MemStorage{
 		userCash:  make(map[uuid.UUID]models.User),
-		orderCash: make(map[int]models.Order),
+		orderCash: make(map[string]models.Order),
 		mu:        new(sync.RWMutex),
 	}, nil
 }
@@ -59,7 +59,7 @@ func (MS *MemStorage) AuthenticationUser(user models.User) (bool, error) {
 	return false, nil
 }
 
-func (MS *MemStorage) GetOrder(numberOrder int) (models.Order, error) {
+func (MS *MemStorage) GetOrder(numberOrder string) (models.Order, error) {
 	MS.mu.RLock()
 	defer MS.mu.RUnlock()
 	return MS.orderCash[numberOrder], nil
@@ -77,7 +77,7 @@ func (MS *MemStorage) GetManyOrders(userLogin string) ([]models.Order, error) {
 	return orders, nil
 }
 
-func (MS *MemStorage) AddOrder(numberOrder int, order models.Order) error {
+func (MS *MemStorage) AddOrder(numberOrder string, order models.Order) error {
 	MS.mu.Lock()
 	defer MS.mu.Unlock()
 	if MS.orderCash[numberOrder].NumberOrder == numberOrder {

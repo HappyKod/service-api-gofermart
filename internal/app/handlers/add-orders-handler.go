@@ -6,6 +6,7 @@ import (
 	"HappyKod/service-api-gofermart/internal/models"
 	"HappyKod/service-api-gofermart/internal/utils"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"io"
@@ -59,22 +60,22 @@ func AddUserOrders(c *gin.Context) {
 	log.Debug("поступил номер заказа",
 		zap.Int("numberOrder", numberOrder),
 		zap.String("loginUser", user))
-
 	if !utils.ValidLuhn(numberOrder) {
 		log.Debug(constans.ErrorNumberValidLuhn, zap.Error(err), zap.Int("numberOrder", numberOrder))
 		c.String(http.StatusUnprocessableEntity, constans.ErrorNumberValidLuhn)
 		return
 	}
-	err = storage.AddOrder(numberOrder,
+	numberOrderStr := fmt.Sprint(numberOrder)
+	err = storage.AddOrder(numberOrderStr,
 		models.Order{
-			NumberOrder: numberOrder,
+			NumberOrder: numberOrderStr,
 			UserLogin:   user,
 			Status:      constans.OrderStatusPROCESSING,
 			Uploaded:    time.Now(),
 		})
 	if err != nil {
 		if err.Error() == constans.ErrorNoUNIQUE {
-			order, errGet := storage.GetOrder(numberOrder)
+			order, errGet := storage.GetOrder(numberOrderStr)
 			if errGet != nil {
 				log.Error(constans.ErrorWorkDataBase, zap.Error(err), zap.String("func", "GetOrder"))
 				c.String(http.StatusInternalServerError, constans.ErrorWorkDataBase)
