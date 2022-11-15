@@ -23,7 +23,7 @@ func Router(cfg models.Config) *gin.Engine {
 		gUser.GET("/orders", GetUserOrders)
 		gUser.GET("/balance", UserBalance)
 		gUser.POST("/balance/withdraw", AddWithdraw)
-		gUser.GET("/balance/withdrawals", GetUserWithdraws)
+		gUser.GET("/withdrawals", GetUserWithdraws)
 	}
 	return r
 }
