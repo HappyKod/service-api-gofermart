@@ -4,13 +4,15 @@ import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/models"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/zhashkevych/auth/pkg/auth"
-	"net/http"
-	"strings"
 )
 
+// JwtValid Валидация JWT токена
 func JwtValid() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.Request.URL.Path == "/api/user/register" || c.Request.URL.Path == "/api/user/login" {

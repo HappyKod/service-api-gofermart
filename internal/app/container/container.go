@@ -3,12 +3,16 @@ package container
 import (
 	"HappyKod/service-api-gofermart/internal/models"
 	"HappyKod/service-api-gofermart/internal/storage/memstorage"
+
 	"github.com/sarulabs/di"
 	"go.uber.org/zap"
 )
 
 var DiContainer di.Container
 
+// BuildContainer Создание контейнера
+// с подключениями, и необходимыми сущностями по всему коду
+// и присваивание DiContainer
 func BuildContainer(cfg models.Config, logger *zap.Logger) error {
 	builder, err := di.NewBuilder()
 	if err != nil {

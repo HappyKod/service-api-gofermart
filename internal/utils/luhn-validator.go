@@ -7,7 +7,6 @@ func ValidLuhn(number int) bool {
 
 func checksum(number int) int {
 	var luhn int
-
 	for i := 0; number > 0; i++ {
 		cur := number % 10
 

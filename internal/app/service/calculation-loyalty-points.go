@@ -5,13 +5,16 @@ import (
 	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
 	"encoding/json"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
+
+	"go.uber.org/zap"
 )
 
+// CalculationLoyaltyPoints Сервис по обновлению
+// показателей статуса заказа
 func CalculationLoyaltyPoints() error {
 	storage := container.GetStorage()
 	cfg := container.GetConfig()

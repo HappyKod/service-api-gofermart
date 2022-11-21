@@ -4,12 +4,12 @@ import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/models"
 	"bytes"
-	"fmt"
-	"github.com/go-playground/assert/v2"
-	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-playground/assert/v2"
+	"go.uber.org/zap"
 )
 
 func TestGetUserOrders(t *testing.T) {
@@ -122,8 +122,6 @@ func TestGetUserOrders(t *testing.T) {
 			if tt.requestPath == "/api/user/login" {
 				bearer = w.Header().Get("Authorization")
 			}
-			//TODO убрать
-			fmt.Println(w.Body.String())
 			assert.Equal(t, tt.want.responseCode, w.Code)
 		})
 	}

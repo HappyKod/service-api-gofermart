@@ -4,12 +4,13 @@ import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/models"
 	"bytes"
-	"github.com/go-playground/assert/v2"
-	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-playground/assert/v2"
+	"go.uber.org/zap"
 )
 
 func TestLoginHandler(t *testing.T) {

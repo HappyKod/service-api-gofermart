@@ -3,9 +3,9 @@ package memstorage
 import (
 	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
-	"errors"
-	"github.com/google/uuid"
 	"sync"
+
+	"github.com/google/uuid"
 )
 
 type MemStorage struct {
@@ -83,7 +83,7 @@ func (MS *MemStorage) AddOrder(numberOrder string, order models.Order) error {
 	MS.mu.Lock()
 	defer MS.mu.Unlock()
 	if MS.orderCash[numberOrder].NumberOrder == numberOrder {
-		return errors.New(constans.ErrorNoUNIQUE)
+		return constans.ErrorNoUNIQUE
 	}
 	MS.orderCash[numberOrder] = order
 	return nil

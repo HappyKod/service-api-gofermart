@@ -3,9 +3,10 @@ package handlers
 import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/constans"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 // GetUserWithdraws Получение информации о выводе средств
@@ -59,5 +60,5 @@ func GetUserWithdraws(c *gin.Context) {
 		c.String(http.StatusNoContent, "нет данных для ответа")
 		return
 	}
-	c.JSONP(http.StatusOK, orders)
+	c.JSON(http.StatusOK, orders)
 }

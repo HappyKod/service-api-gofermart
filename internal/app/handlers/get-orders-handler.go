@@ -3,9 +3,10 @@ package handlers
 import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/constans"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 // GetUserOrders Получение списка загруженных номеров заказов
@@ -76,5 +77,5 @@ func GetUserOrders(c *gin.Context) {
 		c.String(http.StatusNoContent, "нет данных для ответа")
 		return
 	}
-	c.JSONP(http.StatusOK, orders)
+	c.JSON(http.StatusOK, orders)
 }

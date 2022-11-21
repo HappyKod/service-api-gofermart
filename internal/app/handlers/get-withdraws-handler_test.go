@@ -5,12 +5,13 @@ import (
 	"HappyKod/service-api-gofermart/internal/models"
 	"bytes"
 	"encoding/json"
-	"github.com/go-playground/assert/v2"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-playground/assert/v2"
+	"go.uber.org/zap"
 )
 
 func TestGetUserWithdraws(t *testing.T) {

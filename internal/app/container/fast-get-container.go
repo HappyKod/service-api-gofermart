@@ -3,9 +3,11 @@ package container
 import (
 	"HappyKod/service-api-gofermart/internal/models"
 	"HappyKod/service-api-gofermart/internal/storage"
+
 	"go.uber.org/zap"
 )
 
+// GetLog
 func GetLog() *zap.Logger {
 	return DiContainer.Get("zap-logger").(*zap.Logger)
 }

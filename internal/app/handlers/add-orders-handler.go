@@ -6,12 +6,14 @@ import (
 	"HappyKod/service-api-gofermart/internal/models"
 	"HappyKod/service-api-gofermart/internal/utils"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // AddUserOrders Загрузка номера заказа
@@ -74,7 +76,7 @@ func AddUserOrders(c *gin.Context) {
 			Uploaded:    time.Now(),
 		})
 	if err != nil {
-		if err.Error() == constans.ErrorNoUNIQUE {
+		if errors.Is(err, constans.ErrorNoUNIQUE) {
 			order, errGet := storage.GetOrder(numberOrderStr)
 			if errGet != nil {
 				log.Error(constans.ErrorWorkDataBase, zap.Error(err), zap.String("func", "GetOrder"))

@@ -2,8 +2,9 @@ package container
 
 import (
 	"HappyKod/service-api-gofermart/internal/models"
-	"go.uber.org/zap"
 	"testing"
+
+	"go.uber.org/zap"
 )
 
 func TestBuildContainer(t *testing.T) {
