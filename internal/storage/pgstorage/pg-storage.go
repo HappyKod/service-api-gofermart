@@ -197,7 +197,7 @@ func (PS *PgStorage) AddWithdraw(withdraw models.Withdraw) error {
 
 func (PS *PgStorage) GetManyWithdraws(userLogin string) ([]models.Withdraw, error) {
 	var withdraws []models.Withdraw
-	rows, err := PS.connect.Query(`select (login_user, number_order, sum, uploaded_order) from public.withdraws
+	rows, err := PS.connect.Query(`select login_user, number_order, sum, uploaded_order from public.withdraws
 	where login_user = $1
 	order by uploaded_order`, userLogin)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
