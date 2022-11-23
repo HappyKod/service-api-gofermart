@@ -35,19 +35,13 @@ func (MS *MemStorage) Close() error {
 func (MS *MemStorage) AddUser(user models.User) error {
 	MS.mu.Lock()
 	defer MS.mu.Unlock()
-	MS.userCash[uuid.New()] = user
-	return nil
-}
-
-func (MS *MemStorage) UniqLoginUser(login string) (bool, error) {
-	MS.mu.RLock()
-	defer MS.mu.RUnlock()
 	for _, v := range MS.userCash {
-		if v.Login == login {
-			return false, nil
+		if v.Login == user.Login {
+			return constans.ErrorNoUNIQUE
 		}
 	}
-	return true, nil
+	MS.userCash[uuid.New()] = user
+	return nil
 }
 
 func (MS *MemStorage) AuthenticationUser(user models.User) (bool, error) {

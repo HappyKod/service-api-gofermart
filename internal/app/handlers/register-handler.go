@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
 
@@ -50,19 +51,13 @@ func RegisterHandler(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	uniq, err := storage.UniqLoginUser(user.Login)
+	err := storage.AddUser(user)
 	if err != nil {
-		log.Error(constans.ErrorWorkDataBase, zap.Error(err), zap.String("func", "UniqLoginUser"))
-		c.String(http.StatusInternalServerError, constans.ErrorWorkDataBase)
-		return
-	}
-	if !uniq {
-		log.Debug("пользователь с таким логином уже есть", zap.Any("user", user))
-		c.String(http.StatusConflict, "пользователь с таким логином уже есть")
-		return
-	}
-	err = storage.AddUser(user)
-	if err != nil {
+		if errors.Is(err, constans.ErrorNoUNIQUE) {
+			log.Debug("пользователь с таким логином уже есть", zap.Any("user", user))
+			c.String(http.StatusConflict, "пользователь с таким логином уже есть")
+			return
+		}
 		log.Error(constans.ErrorWorkDataBase, zap.Error(err), zap.String("func", "AddUser"))
 		c.String(http.StatusInternalServerError, constans.ErrorWorkDataBase)
 		return

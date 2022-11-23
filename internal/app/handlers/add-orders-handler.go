@@ -79,7 +79,7 @@ func AddUserOrders(c *gin.Context) {
 		if errors.Is(err, constans.ErrorNoUNIQUE) {
 			order, errGet := storage.GetOrder(numberOrderStr)
 			if errGet != nil {
-				log.Error(constans.ErrorWorkDataBase, zap.Error(err), zap.String("func", "GetOrder"))
+				log.Error(constans.ErrorWorkDataBase, zap.Error(errGet), zap.String("func", "GetOrder"))
 				c.String(http.StatusInternalServerError, constans.ErrorWorkDataBase)
 				return
 			}
