@@ -4,6 +4,7 @@ import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
+	"HappyKod/service-api-gofermart/internal/utils"
 	"context"
 	"fmt"
 	"net/http"
@@ -38,6 +39,9 @@ import (
 func RegisterHandler(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), constans.TimeOutRequest)
 	defer cancel()
+	if !utils.ValidContentType(c, "application/json") {
+		return
+	}
 	log := container.GetLog()
 	storage := container.GetStorage()
 	var user models.User

@@ -4,6 +4,7 @@ import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/models"
 	"bytes"
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -125,6 +126,8 @@ func TestUserBalance(t *testing.T) {
 		t.Fatal(err)
 	}
 	var bearer string
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			router := Router(models.Config{})
@@ -137,7 +140,7 @@ func TestUserBalance(t *testing.T) {
 				bearer = w.Header().Get("Authorization")
 			}
 			if tt.requestPath == "/api/user/orders" {
-				err = container.GetStorage().UpdateOrder(models.LoyaltyPoint{
+				err = container.GetStorage().UpdateOrder(ctx, models.LoyaltyPoint{
 					Status:      "PROCESSED",
 					NumberOrder: tt.requestBody,
 					Accrual:     100.0})

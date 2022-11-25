@@ -4,6 +4,7 @@ import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/models"
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -135,6 +136,8 @@ func TestGetUserWithdraws(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	var bearer string
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -148,7 +151,7 @@ func TestGetUserWithdraws(t *testing.T) {
 				bearer = w.Header().Get("Authorization")
 			}
 			if tt.requestPath == "/api/user/orders" {
-				err = container.GetStorage().UpdateOrder(models.LoyaltyPoint{
+				err = container.GetStorage().UpdateOrder(ctx, models.LoyaltyPoint{
 					Status:      "PROCESSED",
 					NumberOrder: tt.requestBody,
 					Accrual:     100.0})
