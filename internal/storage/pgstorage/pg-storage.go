@@ -187,10 +187,26 @@ func (PS *PgStorage) GetUserBalance(userLogin string) (float64, float64, error) 
 }
 
 func (PS *PgStorage) AddWithdraw(withdraw models.Withdraw) error {
-	_, err := PS.connect.Exec(`insert into public.withdraws (login_user, number_order, sum, uploaded_order)
-	values ($1, $2, $3, $4)`, withdraw.UserLogin, withdraw.NumberOrder, withdraw.Sum, withdraw.ProcessedAT)
+	result, err := PS.connect.Exec(`
+	insert into public.withdraws (login_user, number_order, sum, uploaded_order)
+	select $1, $2, $3, $4
+	where (
+          select sum_order >= sum_withdraws + $3 from (
+          select (case when sum_order is null then 0 else sum_order end ) as sum_order,
+          (case when sum_withdraws is null then 0 else sum_withdraws end ) as sum_withdraws from
+          (select sum(accrual_order) as  sum_order from public.orders where login_user = $1) as orders,
+          (select sum(sum) as  sum_withdraws from public.withdraws where login_user = $1) as withdraws) as s
+          );
+	`, withdraw.UserLogin, withdraw.NumberOrder, withdraw.Sum, withdraw.ProcessedAT)
 	if err != nil {
 		return err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return constans.StatusShortfallAccount
 	}
 	return nil
 }

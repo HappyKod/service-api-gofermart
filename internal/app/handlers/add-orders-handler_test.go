@@ -88,7 +88,7 @@ func TestAddUserOrders(t *testing.T) {
 			requestBody:   "4561261212345467",
 			requestHeader: [2]string{"Content-Type", "application/json"},
 			want: want{
-				responseCode: http.StatusBadRequest,
+				responseCode: http.StatusUnsupportedMediaType,
 			},
 		},
 		{

@@ -30,7 +30,7 @@ func TestGetUserWithdraws(t *testing.T) {
 	}{
 		{
 			name:          "просмотр истории списания без авторизации",
-			requestPath:   "/api/user/balance/withdrawals",
+			requestPath:   "/api/user/withdrawals",
 			requestMethod: http.MethodGet,
 			requestBody:   "",
 			requestHeader: [2]string{"Content-Length", "0"},
@@ -66,12 +66,12 @@ func TestGetUserWithdraws(t *testing.T) {
 		},
 		{
 			name:          "просмотр истории списания без авторизации",
-			requestPath:   "/api/user/balance/withdrawals",
+			requestPath:   "/api/user/withdrawals",
 			requestMethod: http.MethodGet,
 			requestBody:   "",
 			requestHeader: [2]string{"Content-Length", "0"},
 			want: want{
-				responseCode: http.StatusNoContent,
+				responseCode: http.StatusUnsupportedMediaType,
 			},
 		},
 		{
@@ -96,7 +96,7 @@ func TestGetUserWithdraws(t *testing.T) {
 		},
 		{
 			name:          "просмотр истории списания c авторизацией",
-			requestPath:   "/api/user/balance/withdrawals",
+			requestPath:   "/api/user/withdrawals",
 			requestMethod: http.MethodGet,
 			requestBody:   "",
 			requestHeader: [2]string{"Content-Length", "0"},
@@ -117,7 +117,7 @@ func TestGetUserWithdraws(t *testing.T) {
 		},
 		{
 			name:          "просмотр истории списания c авторизацией",
-			requestPath:   "/api/user/balance/withdrawals",
+			requestPath:   "/api/user/withdrawals",
 			requestMethod: http.MethodGet,
 			requestBody:   "",
 			requestHeader: [2]string{"Content-Length", "0"},
@@ -156,7 +156,7 @@ func TestGetUserWithdraws(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			if tt.requestPath == "/api/user/balance/withdrawals" && tt.want.withdrawsLEN > 0 {
+			if tt.requestPath == "/api/user/withdrawals" && tt.want.withdrawsLEN > 0 {
 				body, errReadAll := io.ReadAll(w.Body)
 				if errReadAll != nil {
 					t.Error(errReadAll)

@@ -98,7 +98,7 @@ func TestAddWithdraw(t *testing.T) {
 			requestBody:   `{"order": "2377225624","sum": 10}`,
 			requestHeader: [2]string{"Content-Type", "text/plain"},
 			want: want{
-				responseCode: http.StatusBadRequest,
+				responseCode: http.StatusUnsupportedMediaType,
 			},
 		},
 		{

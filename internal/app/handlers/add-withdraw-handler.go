@@ -6,6 +6,7 @@ import (
 	"HappyKod/service-api-gofermart/internal/models"
 	"HappyKod/service-api-gofermart/internal/utils"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -78,24 +79,12 @@ func AddWithdraw(c *gin.Context) {
 		c.String(http.StatusUnprocessableEntity, constans.ErrorNumberValidLuhn)
 		return
 	}
-
-	sum, spent, err := storage.GetUserBalance(user)
-	if err != nil {
-		log.Error(constans.ErrorWorkDataBase, zap.Error(err), zap.String("func", "GetUserBalance"))
-		c.String(http.StatusInternalServerError, constans.ErrorWorkDataBase)
-		return
-	}
-	current := sum - spent
-	if current-withdraw.Sum < 0 {
-		log.Debug("на счету недостаточно средств", zap.String("user", user),
-			zap.Float64("current", current),
-			zap.Float64("current", withdraw.Sum),
-		)
-		c.String(http.StatusPaymentRequired, "на счету недостаточно средств")
-		return
-	}
 	err = storage.AddWithdraw(withdraw)
 	if err != nil {
+		if errors.Is(err, constans.StatusShortfallAccount) {
+			c.String(http.StatusPaymentRequired, constans.StatusShortfallAccount.Error())
+			return
+		}
 		log.Error(constans.ErrorWorkDataBase, zap.Error(err), zap.String("func", "AddWithdraw"))
 		c.String(http.StatusInternalServerError, constans.ErrorWorkDataBase)
 		return

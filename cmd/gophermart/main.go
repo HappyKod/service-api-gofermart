@@ -53,7 +53,7 @@ func main() {
 	}()
 	go func() {
 		for {
-			time.Sleep(time.Second * constans.TimeSleepCalculationLoyaltyPoints)
+			time.Sleep(constans.TimeSleepCalculationLoyaltyPoints)
 			err = service.CalculationLoyaltyPoints()
 			if err != nil {
 				zapLogger.Error("ошибка в работе модуля", zap.Error(err))

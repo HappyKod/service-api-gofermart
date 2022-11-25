@@ -35,7 +35,7 @@ func CalculationLoyaltyPoints() error {
 		switch r.StatusCode {
 		case http.StatusTooManyRequests:
 			log.Error("TooManyRequests")
-			time.Sleep(constans.TimeSleepTooManyRequests * time.Second)
+			time.Sleep(constans.TimeSleepTooManyRequests)
 		case http.StatusInternalServerError:
 			body, errRead := io.ReadAll(r.Body)
 			if errRead != nil {
@@ -54,15 +54,14 @@ func CalculationLoyaltyPoints() error {
 			log.Debug("body", zap.String("body", string(body)))
 			var loyaltyPoint models.LoyaltyPoint
 			if errUnmarshal := json.Unmarshal(body, &loyaltyPoint); errUnmarshal != nil {
-
 				return errUnmarshal
 			}
 			errClose := r.Body.Close()
 			if errClose != nil {
 				return errClose
 			}
-			if loyaltyPoint.Status == "REGISTERED" {
-				loyaltyPoint.Status = "PROCESSING"
+			if loyaltyPoint.Status == constans.OrderStatusREGISTERED {
+				loyaltyPoint.Status = constans.OrderStatusPROCESSING
 			}
 			if order.Status != loyaltyPoint.Status {
 				if err = storage.UpdateOrder(loyaltyPoint); err != nil {

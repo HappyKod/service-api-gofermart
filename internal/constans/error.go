@@ -10,3 +10,4 @@ const (
 )
 
 var ErrorNoUNIQUE = errors.New("ошибка значение не уникально")
+var StatusShortfallAccount = errors.New("на счету недостаточно средств")

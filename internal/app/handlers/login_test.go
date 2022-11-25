@@ -101,7 +101,7 @@ func TestLoginHandler(t *testing.T) {
 			}`,
 			requestHeader: [2]string{"Content-Type", "text/plain"},
 			want: want{
-				responseCode: http.StatusBadRequest,
+				responseCode: http.StatusUnsupportedMediaType,
 			},
 		},
 		{
