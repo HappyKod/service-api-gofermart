@@ -66,13 +66,13 @@ func TestGetUserWithdraws(t *testing.T) {
 			},
 		},
 		{
-			name:          "просмотр истории списания без авторизации",
+			name:          "просмотр истории списания без списания",
 			requestPath:   "/api/user/withdrawals",
 			requestMethod: http.MethodGet,
 			requestBody:   "",
 			requestHeader: [2]string{"Content-Length", "0"},
 			want: want{
-				responseCode: http.StatusUnsupportedMediaType,
+				responseCode: http.StatusNoContent,
 			},
 		},
 		{

@@ -133,7 +133,14 @@ func (MS *MemStorage) GetUserBalance(_ context.Context, userLogin string) (float
 	return pointsSUM, pointsSPEND, nil
 }
 
-func (MS *MemStorage) AddWithdraw(_ context.Context, withdraw models.Withdraw) error {
+func (MS *MemStorage) AddWithdraw(ctx context.Context, withdraw models.Withdraw) error {
+	orderSum, wSum, err := MS.GetUserBalance(ctx, withdraw.UserLogin)
+	if err != nil {
+		return err
+	}
+	if orderSum < wSum+withdraw.Sum {
+		return constans.ErrorStatusShortfallAccount
+	}
 	MS.mu.Lock()
 	defer MS.mu.Unlock()
 	MS.withdrawCash[uuid.New()] = withdraw
