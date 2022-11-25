@@ -142,9 +142,10 @@ func TestAddWithdraw(t *testing.T) {
 		t.Fatal(err)
 	}
 	var bearer string
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := context.Background()
 			router := Router(models.Config{})
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest(tt.requestMethod, tt.requestPath, bytes.NewBuffer([]byte(tt.requestBody)))
