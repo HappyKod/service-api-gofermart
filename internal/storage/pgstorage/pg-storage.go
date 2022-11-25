@@ -207,7 +207,7 @@ func (PS *PgStorage) AddWithdraw(ctx context.Context, withdraw models.Withdraw) 
 		return err
 	}
 	if affected == 0 {
-		return constans.StatusShortfallAccount
+		return constans.ErrorStatusShortfallAccount
 	}
 	return nil
 }

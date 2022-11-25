@@ -84,8 +84,8 @@ func AddWithdraw(c *gin.Context) {
 	}
 	err = storage.AddWithdraw(ctx, withdraw)
 	if err != nil {
-		if errors.Is(err, constans.StatusShortfallAccount) {
-			c.String(http.StatusPaymentRequired, constans.StatusShortfallAccount.Error())
+		if errors.Is(err, constans.ErrorStatusShortfallAccount) {
+			c.String(http.StatusPaymentRequired, constans.ErrorStatusShortfallAccount.Error())
 			return
 		}
 		log.Error(constans.ErrorWorkDataBase, zap.Error(err), zap.String("func", "AddWithdraw"))
