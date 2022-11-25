@@ -3,6 +3,7 @@ package pgstorage
 import (
 	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
+	"context"
 	"database/sql"
 	"errors"
 
@@ -70,9 +71,9 @@ func createTables(connect *sql.DB) error {
 	return nil
 }
 
-func (PS *PgStorage) AddUser(user models.User) error {
-	result, err := PS.connect.Exec(`insert into public.users (login_user, password_user) values ($1, $2)
-                                                     on conflict do nothing`,
+func (PS *PgStorage) AddUser(ctx context.Context, user models.User) error {
+	result, err := PS.connect.ExecContext(ctx,
+		`insert into public.users (login_user, password_user) values ($1, $2) on conflict do nothing`,
 		user.Login, user.Password)
 	if err != nil {
 		return err
@@ -87,9 +88,9 @@ func (PS *PgStorage) AddUser(user models.User) error {
 	return nil
 }
 
-func (PS *PgStorage) AuthenticationUser(user models.User) (bool, error) {
+func (PS *PgStorage) AuthenticationUser(ctx context.Context, user models.User) (bool, error) {
 	var done int
-	err := PS.connect.QueryRow(`select count(1) from public.users where login_user=$1 and password_user=$2`,
+	err := PS.connect.QueryRowContext(ctx, `select count(1) from public.users where login_user=$1 and password_user=$2`,
 		user.Login, user.Password).Scan(&done)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return false, err
@@ -100,9 +101,9 @@ func (PS *PgStorage) AuthenticationUser(user models.User) (bool, error) {
 	return true, nil
 }
 
-func (PS *PgStorage) GetOrder(numberOrder string) (models.Order, error) {
+func (PS *PgStorage) GetOrder(ctx context.Context, numberOrder string) (models.Order, error) {
 	var order models.Order
-	err := PS.connect.QueryRow(`select number_order, login_user, status_order, accrual_order, uploaded_order
+	err := PS.connect.QueryRowContext(ctx, `select number_order, login_user, status_order, accrual_order, uploaded_order
 	from public.orders where number_order=$1 order by created_order desc`, //TODO проверить не сходиться описание и пример (с самых старый к новым) но в примере наоборот
 		numberOrder).Scan(&order.NumberOrder, &order.UserLogin, &order.Status,
 		&order.Accrual, &order.Uploaded)
@@ -112,9 +113,9 @@ func (PS *PgStorage) GetOrder(numberOrder string) (models.Order, error) {
 	return order, nil
 }
 
-func (PS *PgStorage) GetManyOrders(userLogin string) ([]models.Order, error) {
+func (PS *PgStorage) GetManyOrders(ctx context.Context, userLogin string) ([]models.Order, error) {
 	var orders []models.Order
-	rows, err := PS.connect.Query(`select number_order, login_user, status_order, accrual_order, uploaded_order
+	rows, err := PS.connect.QueryContext(ctx, `select number_order, login_user, status_order, accrual_order, uploaded_order
 	from public.orders where login_user=$1`, userLogin)
 	if err != nil {
 		return nil, err
@@ -130,8 +131,8 @@ func (PS *PgStorage) GetManyOrders(userLogin string) ([]models.Order, error) {
 	return orders, rows.Err()
 }
 
-func (PS *PgStorage) AddOrder(numberOrder string, order models.Order) error {
-	result, err := PS.connect.Exec(`insert into public.orders 
+func (PS *PgStorage) AddOrder(ctx context.Context, numberOrder string, order models.Order) error {
+	result, err := PS.connect.ExecContext(ctx, `insert into public.orders 
     (number_order, login_user, status_order, uploaded_order, accrual_order)  values ($1, $2, $3, $4, $5) on conflict do nothing`,
 		numberOrder, order.UserLogin, order.Status, order.Uploaded, order.Accrual)
 	if err != nil {
@@ -147,10 +148,10 @@ func (PS *PgStorage) AddOrder(numberOrder string, order models.Order) error {
 	return nil
 }
 
-func (PS *PgStorage) GetOrdersByProcess() ([]models.Order, error) {
+func (PS *PgStorage) GetOrdersByProcess(ctx context.Context) ([]models.Order, error) {
 	var orders []models.Order
 	sliceStatus := []interface{}{constans.OrderStatusPROCESSING, constans.OrderStatusNEW, constans.OrderStatusREGISTERED}
-	rows, err := PS.connect.Query(`select number_order, login_user, status_order, accrual_order, uploaded_order
+	rows, err := PS.connect.QueryContext(ctx, `select number_order, login_user, status_order, accrual_order, uploaded_order
 	from public.orders where status_order in ($1, $2, $3)`, sliceStatus...)
 	if err != nil {
 		return nil, err
@@ -166,8 +167,8 @@ func (PS *PgStorage) GetOrdersByProcess() ([]models.Order, error) {
 	return orders, rows.Err()
 }
 
-func (PS *PgStorage) UpdateOrder(loyaltyPoint models.LoyaltyPoint) error {
-	_, err := PS.connect.Exec(`update public.orders set accrual_order=$1, status_order=$2,
+func (PS *PgStorage) UpdateOrder(ctx context.Context, loyaltyPoint models.LoyaltyPoint) error {
+	_, err := PS.connect.ExecContext(ctx, `update public.orders set accrual_order=$1, status_order=$2,
                          uploaded_order=now() where number_order =$3`,
 		loyaltyPoint.Accrual, loyaltyPoint.Status, loyaltyPoint.NumberOrder)
 	if err != nil {
@@ -176,18 +177,18 @@ func (PS *PgStorage) UpdateOrder(loyaltyPoint models.LoyaltyPoint) error {
 	return nil
 }
 
-func (PS *PgStorage) GetUserBalance(userLogin string) (float64, float64, error) {
+func (PS *PgStorage) GetUserBalance(ctx context.Context, userLogin string) (float64, float64, error) {
 	var ordersSUM float64
 	var withdrawsSUM float64
-	err := PS.connect.QueryRow(`select (case when sum_order is null then 0.0 else sum_order end) as sum_order, (case when sum_withdraws is null then 0.0 else sum_withdraws end) as sum_withdraws from
+	err := PS.connect.QueryRowContext(ctx, `select (case when sum_order is null then 0.0 else sum_order end) as sum_order, (case when sum_withdraws is null then 0.0 else sum_withdraws end) as sum_withdraws from
 	 (select sum(accrual_order) as  sum_order from public.orders where login_user = $1) as orders,
 	 (select sum(sum) as  sum_withdraws from public.withdraws where login_user = $1) as withdraws`, userLogin).
 		Scan(&ordersSUM, &withdrawsSUM)
 	return ordersSUM, withdrawsSUM, err
 }
 
-func (PS *PgStorage) AddWithdraw(withdraw models.Withdraw) error {
-	result, err := PS.connect.Exec(`
+func (PS *PgStorage) AddWithdraw(ctx context.Context, withdraw models.Withdraw) error {
+	result, err := PS.connect.ExecContext(ctx, `
 	insert into public.withdraws (login_user, number_order, sum, uploaded_order)
 	select $1, $2, $3, $4
 	where (
@@ -211,9 +212,9 @@ func (PS *PgStorage) AddWithdraw(withdraw models.Withdraw) error {
 	return nil
 }
 
-func (PS *PgStorage) GetManyWithdraws(userLogin string) ([]models.Withdraw, error) {
+func (PS *PgStorage) GetManyWithdraws(ctx context.Context, userLogin string) ([]models.Withdraw, error) {
 	var withdraws []models.Withdraw
-	rows, err := PS.connect.Query(`select login_user, number_order, sum, uploaded_order from public.withdraws
+	rows, err := PS.connect.QueryContext(ctx, `select login_user, number_order, sum, uploaded_order from public.withdraws
 	where login_user = $1
 	order by uploaded_order`, userLogin)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {

@@ -4,7 +4,8 @@ import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
-	"HappyKod/service-api-gofermart/internal/utils"
+	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,9 +36,8 @@ import (
 // 409 — логин уже занят;
 // 500 — внутренняя ошибка сервера.
 func RegisterHandler(c *gin.Context) {
-	if !utils.ValidContentType(c, "application/json") {
-		return
-	}
+	ctx, cancel := context.WithTimeout(c.Request.Context(), constans.TimeOutRequest)
+	defer cancel()
 	log := container.GetLog()
 	storage := container.GetStorage()
 	var user models.User
@@ -51,7 +51,7 @@ func RegisterHandler(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	err := storage.AddUser(user)
+	err := storage.AddUser(ctx, user)
 	if err != nil {
 		if errors.Is(err, constans.ErrorNoUNIQUE) {
 			log.Debug("пользователь с таким логином уже есть", zap.Any("user", user))
@@ -62,6 +62,9 @@ func RegisterHandler(c *gin.Context) {
 		c.String(http.StatusInternalServerError, constans.ErrorWorkDataBase)
 		return
 	}
+	//<-ctx.Done()
+	fmt.Println(errors.Is(ctx.Err(), context.DeadlineExceeded))
+	fmt.Println(errors.Is(ctx.Err(), context.Canceled))
 	log.Debug("пользователь успешно зарегистрирован", zap.Any("user", user))
 	c.Redirect(http.StatusPermanentRedirect, "/api/user/login")
 }

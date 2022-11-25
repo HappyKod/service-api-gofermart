@@ -5,6 +5,7 @@ import (
 	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
 	"HappyKod/service-api-gofermart/internal/utils"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -45,6 +46,8 @@ import (
 // 422 — неверный номер заказа;
 // 500 — внутренняя ошибка сервера.
 func AddWithdraw(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), constans.TimeOutRequest)
+	defer cancel()
 	if !utils.ValidContentType(c, "application/json") {
 		return
 	}
@@ -79,7 +82,7 @@ func AddWithdraw(c *gin.Context) {
 		c.String(http.StatusUnprocessableEntity, constans.ErrorNumberValidLuhn)
 		return
 	}
-	err = storage.AddWithdraw(withdraw)
+	err = storage.AddWithdraw(ctx, withdraw)
 	if err != nil {
 		if errors.Is(err, constans.StatusShortfallAccount) {
 			c.String(http.StatusPaymentRequired, constans.StatusShortfallAccount.Error())

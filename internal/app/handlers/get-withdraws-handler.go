@@ -3,6 +3,7 @@ package handlers
 import (
 	"HappyKod/service-api-gofermart/internal/app/container"
 	"HappyKod/service-api-gofermart/internal/constans"
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -43,13 +44,15 @@ import (
 //
 // 500 — внутренняя ошибка сервера.
 func GetUserWithdraws(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), constans.TimeOutRequest)
+	defer cancel()
 	log := container.GetLog()
 	storage := container.GetStorage()
 	user := c.Param("loginUser")
 	log.Debug("поступил запрос на показ списаний",
 		zap.String("loginUser", user))
 
-	orders, err := storage.GetManyWithdraws(user)
+	orders, err := storage.GetManyWithdraws(ctx, user)
 	if err != nil {
 		log.Error(constans.ErrorWorkDataBase, zap.Error(err), zap.String("func", "GetManyWithdraws"))
 		c.String(http.StatusInternalServerError, constans.ErrorWorkDataBase)

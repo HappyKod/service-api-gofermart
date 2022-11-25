@@ -5,6 +5,7 @@ import (
 	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
 	"HappyKod/service-api-gofermart/internal/utils"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -40,6 +41,8 @@ import (
 // 422 — неверный формат номера заказа;
 // 500 — внутренняя ошибка сервера.
 func AddUserOrders(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), constans.TimeOutRequest)
+	defer cancel()
 	if !utils.ValidContentType(c, "text/plain") {
 		return
 	}
@@ -68,7 +71,7 @@ func AddUserOrders(c *gin.Context) {
 		return
 	}
 	numberOrderStr := fmt.Sprint(numberOrder)
-	err = storage.AddOrder(numberOrderStr,
+	err = storage.AddOrder(ctx, numberOrderStr,
 		models.Order{
 			NumberOrder: numberOrderStr,
 			UserLogin:   user,
@@ -77,7 +80,7 @@ func AddUserOrders(c *gin.Context) {
 		})
 	if err != nil {
 		if errors.Is(err, constans.ErrorNoUNIQUE) {
-			order, errGet := storage.GetOrder(numberOrderStr)
+			order, errGet := storage.GetOrder(ctx, numberOrderStr)
 			if errGet != nil {
 				log.Error(constans.ErrorWorkDataBase, zap.Error(errGet), zap.String("func", "GetOrder"))
 				c.String(http.StatusInternalServerError, constans.ErrorWorkDataBase)

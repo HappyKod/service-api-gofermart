@@ -7,6 +7,7 @@ import (
 	"HappyKod/service-api-gofermart/internal/app/service"
 	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
+	"context"
 	"flag"
 	"log"
 	"time"
@@ -53,8 +54,9 @@ func main() {
 	}()
 	go func() {
 		for {
+			ctx := context.Background()
 			time.Sleep(constans.TimeSleepCalculationLoyaltyPoints)
-			err = service.CalculationLoyaltyPoints()
+			err = service.CalculationLoyaltyPoints(ctx)
 			if err != nil {
 				zapLogger.Error("ошибка в работе модуля", zap.Error(err))
 			}

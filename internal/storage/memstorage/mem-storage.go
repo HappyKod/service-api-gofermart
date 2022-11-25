@@ -3,6 +3,7 @@ package memstorage
 import (
 	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
+	"context"
 	"sync"
 
 	"github.com/google/uuid"
@@ -32,7 +33,9 @@ func (MS *MemStorage) Close() error {
 	return nil
 }
 
-func (MS *MemStorage) AddUser(user models.User) error {
+func (MS *MemStorage) AddUser(ctx context.Context, user models.User) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	MS.mu.Lock()
 	defer MS.mu.Unlock()
 	for _, v := range MS.userCash {
@@ -41,10 +44,15 @@ func (MS *MemStorage) AddUser(user models.User) error {
 		}
 	}
 	MS.userCash[uuid.New()] = user
+	select {
+	default:
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 	return nil
 }
 
-func (MS *MemStorage) AuthenticationUser(user models.User) (bool, error) {
+func (MS *MemStorage) AuthenticationUser(_ context.Context, user models.User) (bool, error) {
 	MS.mu.RLock()
 	defer MS.mu.RUnlock()
 	for _, v := range MS.userCash {
@@ -55,13 +63,14 @@ func (MS *MemStorage) AuthenticationUser(user models.User) (bool, error) {
 	return false, nil
 }
 
-func (MS *MemStorage) GetOrder(numberOrder string) (models.Order, error) {
+func (MS *MemStorage) GetOrder(_ context.Context, numberOrder string) (models.Order, error) {
 	MS.mu.RLock()
 	defer MS.mu.RUnlock()
+
 	return MS.orderCash[numberOrder], nil
 }
 
-func (MS *MemStorage) GetManyOrders(userLogin string) ([]models.Order, error) {
+func (MS *MemStorage) GetManyOrders(_ context.Context, userLogin string) ([]models.Order, error) {
 	MS.mu.RLock()
 	defer MS.mu.RUnlock()
 	var orders []models.Order
@@ -73,7 +82,7 @@ func (MS *MemStorage) GetManyOrders(userLogin string) ([]models.Order, error) {
 	return orders, nil
 }
 
-func (MS *MemStorage) AddOrder(numberOrder string, order models.Order) error {
+func (MS *MemStorage) AddOrder(_ context.Context, numberOrder string, order models.Order) error {
 	MS.mu.Lock()
 	defer MS.mu.Unlock()
 	if MS.orderCash[numberOrder].NumberOrder == numberOrder {
@@ -83,7 +92,7 @@ func (MS *MemStorage) AddOrder(numberOrder string, order models.Order) error {
 	return nil
 }
 
-func (MS *MemStorage) GetOrdersByProcess() ([]models.Order, error) {
+func (MS *MemStorage) GetOrdersByProcess(_ context.Context) ([]models.Order, error) {
 	MS.mu.RLock()
 	defer MS.mu.RUnlock()
 	var orders []models.Order
@@ -97,7 +106,7 @@ func (MS *MemStorage) GetOrdersByProcess() ([]models.Order, error) {
 	return orders, nil
 }
 
-func (MS *MemStorage) UpdateOrder(loyaltyPoint models.LoyaltyPoint) error {
+func (MS *MemStorage) UpdateOrder(_ context.Context, loyaltyPoint models.LoyaltyPoint) error {
 	MS.mu.Lock()
 	defer MS.mu.Unlock()
 	order := MS.orderCash[loyaltyPoint.NumberOrder]
@@ -106,7 +115,7 @@ func (MS *MemStorage) UpdateOrder(loyaltyPoint models.LoyaltyPoint) error {
 	return nil
 }
 
-func (MS *MemStorage) GetUserBalance(userLogin string) (float64, float64, error) {
+func (MS *MemStorage) GetUserBalance(_ context.Context, userLogin string) (float64, float64, error) {
 	MS.mu.RLock()
 	defer MS.mu.RUnlock()
 	pointsSUM := 0.0
@@ -124,14 +133,14 @@ func (MS *MemStorage) GetUserBalance(userLogin string) (float64, float64, error)
 	return pointsSUM, pointsSPEND, nil
 }
 
-func (MS *MemStorage) AddWithdraw(withdraw models.Withdraw) error {
+func (MS *MemStorage) AddWithdraw(_ context.Context, withdraw models.Withdraw) error {
 	MS.mu.Lock()
 	defer MS.mu.Unlock()
 	MS.withdrawCash[uuid.New()] = withdraw
 	return nil
 }
 
-func (MS *MemStorage) GetManyWithdraws(userLogin string) ([]models.Withdraw, error) {
+func (MS *MemStorage) GetManyWithdraws(_ context.Context, userLogin string) ([]models.Withdraw, error) {
 	MS.mu.RLock()
 	defer MS.mu.RUnlock()
 	var withdraws []models.Withdraw

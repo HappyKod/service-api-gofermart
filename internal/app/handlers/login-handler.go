@@ -5,6 +5,7 @@ import (
 	"HappyKod/service-api-gofermart/internal/constans"
 	"HappyKod/service-api-gofermart/internal/models"
 	"HappyKod/service-api-gofermart/internal/utils"
+	"context"
 	"net/http"
 	"time"
 
@@ -36,6 +37,8 @@ import (
 // 401 — неверная пара логин/пароль;
 // 500 — внутренняя ошибка сервера.
 func LoginHandler(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), constans.TimeOutRequest)
+	defer cancel()
 	if !utils.ValidContentType(c, "application/json") {
 		return
 	}
@@ -53,7 +56,7 @@ func LoginHandler(c *gin.Context) {
 		c.String(http.StatusBadRequest, "не валидные логин или пароль")
 		return
 	}
-	authenticationUser, err := storage.AuthenticationUser(user)
+	authenticationUser, err := storage.AuthenticationUser(ctx, user)
 	if err != nil {
 		log.Error(constans.ErrorWorkDataBase, zap.Error(err))
 		c.String(http.StatusInternalServerError, constans.ErrorWorkDataBase)
